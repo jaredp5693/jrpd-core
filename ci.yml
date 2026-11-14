@@ -1,0 +1,24 @@
+name: JRPD-Core Security & Verification CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    name: Build, C11 FFI Parity & 100k IEEE-754 Fuzz
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run Integration & C11 FFI Parity Tests
+        run: cargo test --all-features -- --nocapture
+      - name: Run 100,000-Iteration IEEE-754 Monte Carlo Fuzz Suite
+        run: cargo test --release --test fuzz_ieee754_100k -- --nocapture
+      - name: Verify no_std Embedded Build
+        run: cargo check --no-default-features
